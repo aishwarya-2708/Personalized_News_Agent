@@ -1,6 +1,3 @@
-
-
-
 from flask import Flask, render_template, request, jsonify
 import google.genai as genai
 import requests
@@ -20,7 +17,7 @@ client = genai.Client(api_key=GEMINI_API_KEY)
 MODEL_NAME = "gemini-2.5-flash"
 NEWS_API_KEY = os.getenv("NEWSAPI_KEY")
 
-# Fetch news articles
+# Fetch news articles from NewsAPI
 def fetch_news(topic, language="en", page_size=5):
     articles = []
     if language == "en":
@@ -36,9 +33,9 @@ def fetch_news(topic, language="en", page_size=5):
             data = response.json()
             articles = data.get("articles", [])
         except Exception as e:
-            print(f"❌ NewsAPI request failed: {e}")
+            print(f"NewsAPI request failed: {e}")
     else:
-        # Use Google News RSS for Hindi/Marathi
+        # It Uses Google News RSS for Hindi/Marathi language
         lang_code = language
         query = topic.replace(" ", "+")
         rss_url = f"https://news.google.com/rss/search?q={query}+language:{lang_code}&hl={lang_code}&gl=IN&ceid=IN:{lang_code}"
@@ -52,7 +49,7 @@ def fetch_news(topic, language="en", page_size=5):
             })
     return articles
 
-# Summarize article in selected language with proper bullets
+# This is for Summarize article in selected language with proper bullets
 def summarize_article(article, language="en"):
     content = article.get("content") or article.get("description") or article.get("title") or "No content available"
     content = content[:1500]
@@ -74,9 +71,9 @@ Article:
         # Split into lines and remove empty lines
         return [line.strip() for line in response.text.split("\n") if line.strip()]
     except Exception as e:
-        return [f"⚠️ Error summarizing: {e}"]
+        return [f"Error summarizing: {e}"]
 
-# Flask routes
+# Flask app routes
 @app.route("/")
 def index():
     return render_template("index.html")
